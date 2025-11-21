@@ -49,6 +49,34 @@ func InitSQLite(db *sql.DB) error {
 	return tx.Commit()
 }
 
+func PrepareDailyMonthlyStats(db *sql.DB) error {
+	tx, err := db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	_, err = tx.Exec(`
+		INSERT OR IGNORE INTO day (date, rx_bytes, tx_bytes)
+			VALUES (?, 0, 0)
+	`, utils.GetCurrentDay())
+
+	if err != nil {
+		return err
+	}
+
+	_, err = tx.Exec(`
+		INSERT OR IGNORE INTO month (date, rx_bytes, tx_bytes)
+			VALUES (?, 0, 0)
+	`, utils.GetCurrentMonth())
+
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+
 func UpdateStats(db *sql.DB, new_monthly, new_daily types.Stats) error {
 	tx, err := db.Begin()
 	if err != nil {
@@ -57,24 +85,25 @@ func UpdateStats(db *sql.DB, new_monthly, new_daily types.Stats) error {
 	defer tx.Rollback()
 
 	_, err = tx.Exec(`
-		INSERT INTO day (date, rx_bytes, tx_bytes)
-			VALUES (?, ?, ?)
-		ON CONFLICT(date) DO UPDATE SET
-			rx_bytes = excluded.rx_bytes,
-			tx_bytes = excluded.tx_bytes;
-	`, utils.GetCurrentDay(), new_daily.RX_bytes, new_daily.TX_bytes)
+		UPDATE day 
+		SET	
+			rx_bytes = ?,
+			tx_bytes = ?
+		Where 
+			date = ?
+	`, new_daily.RX_bytes, new_daily.TX_bytes, utils.GetCurrentDay())
 
 	if err != nil {
 		return err
 	}
-
 	_, err = tx.Exec(`
-		INSERT INTO month (date, rx_bytes, tx_bytes)
-			VALUES (?, ?, ?)
-		ON CONFLICT(date) DO UPDATE SET
-			rx_bytes = excluded.rx_bytes,
-			tx_bytes = excluded.tx_bytes;
-	`, utils.GetCurrentMonth(), new_monthly.RX_bytes, new_monthly.TX_bytes)
+		UPDATE month 
+		SET	
+			rx_bytes = ?,
+			tx_bytes = ?
+		Where 
+			date = ?
+	`, new_monthly.RX_bytes, new_monthly.TX_bytes, utils.GetCurrentMonth())
 
 	if err != nil {
 		return err
