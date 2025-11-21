@@ -4,13 +4,15 @@ import (
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/abdoshbr3322/network_monitor/internal/types"
 )
 
-func CollectNetworkStats() (int, int, error) {
-	var rx_bytes, tx_bytes int
+func CollectNetworkStats() (types.Stats, error) {
+	var st types.Stats
 	file_content, err := os.ReadFile("/proc/net/dev")
 	if err != nil {
-		return 0, 0, err
+		return types.Stats{RX_bytes: 0, TX_bytes: 0}, err
 	}
 
 	rows := strings.Split(string(file_content), "\n")
@@ -25,18 +27,18 @@ func CollectNetworkStats() (int, int, error) {
 		if iface == "lo:" {
 			continue
 		}
-		rx, err := strconv.Atoi(fields[1])
+		rx, err := strconv.ParseInt(fields[1], 10, 64)
 		if err != nil {
-			return 0, 0, err
+			return types.Stats{RX_bytes: 0, TX_bytes: 0}, err
 		}
 
-		tx, err := strconv.Atoi(fields[9])
+		tx, err := strconv.ParseInt(fields[9], 10, 64)
 		if err != nil {
-			return 0, 0, err
+			return types.Stats{RX_bytes: 0, TX_bytes: 0}, err
 		}
 
-		rx_bytes += rx
-		tx_bytes += tx
+		st.RX_bytes += rx
+		st.TX_bytes += tx
 	}
-	return rx_bytes, tx_bytes, nil
+	return st, nil
 }
