@@ -4,12 +4,14 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/abdoshbr3322/network_monitor/internal/collect"
 	"github.com/abdoshbr3322/network_monitor/internal/database"
+	"github.com/abdoshbr3322/network_monitor/internal/utils"
 )
 
 func main() {
 	db, err := database.OpenSQLite()
+	defer db.Close()
+
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error, %s\n", err)
 		os.Exit(-1)
@@ -21,23 +23,22 @@ func main() {
 		os.Exit(-1)
 	}
 
-	st, err := collect.CollectNetworkStats()
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error, %s\n", err)
-		os.Exit(-1)
+	days := utils.GetLast3Days()
+	months := utils.GetLast3Months()
+
+	for _, month := range months {
+		st, err := database.GetMonthlyStats(db, month)
+		if err != nil {
+
+		}
+		utils.DisplayUsage(month, st)
 	}
 
-	err = database.UpdateStats(db, st, st)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error, %s\n", err)
-		os.Exit(-1)
-	}
+	for _, day := range days {
+		st, err := database.GetDailyStats(db, day)
+		if err != nil {
 
-	st, err = database.GetDailyStats(db, "11:21:2025")
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error, %s\n", err)
-		os.Exit(-1)
+		}
+		utils.DisplayUsage(day, st)
 	}
-	fmt.Println(st.RX_bytes, st.TX_bytes)
-	defer db.Close()
 }
