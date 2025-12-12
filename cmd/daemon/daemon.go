@@ -46,11 +46,15 @@ func main() {
 		}
 		current_stats.RX_bytes -= initial_stats.RX_bytes
 		current_stats.TX_bytes -= initial_stats.TX_bytes
-		err = database.UpdateStats(db, types.Stats.Add(current_stats, initial_monthly_stats), types.Stats.Add(initial_daily_stats, current_stats))
+
+		new_daily := types.Stats.Add(initial_daily_stats, current_stats)
+		new_monthly := types.Stats.Add(initial_monthly_stats, current_stats)
+
+		err = database.UpdateStats(db, new_monthly, new_daily)
 		if err != nil {
 			Crash(err)
 		}
-		time.Sleep(2 * time.Second)
+		time.Sleep(time.Second)
 	}
 
 }
