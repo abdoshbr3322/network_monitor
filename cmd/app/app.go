@@ -10,12 +10,12 @@ import (
 
 func main() {
 	db, err := database.OpenSQLite()
-	defer db.Close()
-
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error, %s\n", err)
 		os.Exit(-1)
 	}
+
+	defer db.Close()
 
 	err = database.InitSQLite(db)
 	if err != nil {
