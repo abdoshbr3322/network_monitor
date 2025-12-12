@@ -6,5 +6,5 @@ type Stats struct {
 }
 
 func (st Stats) Add(st_2 Stats) Stats {
-	return Stats{st.RX_bytes + st_2.RX_bytes, st.TX_bytes + st_2.RX_bytes}
+	return Stats{st.RX_bytes + st_2.RX_bytes, st.TX_bytes + st_2.TX_bytes}
 }
