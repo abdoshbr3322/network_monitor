@@ -1,6 +1,9 @@
 APP_NAME="netmon"
 DAEMON_NAME="netmond"
 APP_USER="netmon"
+
+go mod tidy
+
 go build -o $APP_NAME ./cmd/app
 go build -o $DAEMON_NAME ./cmd/daemon
 
