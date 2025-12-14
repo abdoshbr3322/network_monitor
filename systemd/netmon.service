@@ -1,0 +1,16 @@
+[Unit]
+Description=Network Monitor Daemon
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/netmond
+Restart=always
+RestartSec=3
+
+User=netmon
+Group=netmon
+WorkingDirectory=/var/lib/netmon
+
+[Install]
+WantedBy=multi-user.target

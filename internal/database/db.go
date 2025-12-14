@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	db_location string = "./data.db"
+	db_location string = "/var/lib/netmon/data.db"
 )
 
 func OpenSQLite() (*sql.DB, error) {
