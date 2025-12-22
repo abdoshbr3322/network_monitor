@@ -25,7 +25,7 @@ func main() {
 
 	days := utils.GetLast3Days()
 	months := utils.GetLast3Months()
-
+	fmt.Println("Usage Displayed in Megabytes.\n")
 	for _, month := range months {
 		st, err := database.GetMonthlyStats(db, month)
 		if err != nil {
